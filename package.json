@@ -38,6 +38,7 @@
   "dependencies": {
     "big-integer": "1.6.48",
     "iconv-lite": "0.5.1",
-    "mysql": "2.18.1"
+    "mysql": "^2.18.1",
+    "node-sql-parser": "^5.2.0"
   }
 }
