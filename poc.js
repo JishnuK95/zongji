@@ -16,15 +16,33 @@ const parseQuery = (query) => {
    switch (ast.type) {
       case "insert":
          action = "INSERT";
-         table = ast.table[0].table;
+         try {
+            table = ast?.table[0]?.table ?? "Unknown";
+         } catch (error) {
+            console.error("Error while parsing INSERT: ", error?.message);
+
+            table = "Unknown";
+         }
          break;
       case "update":
          action = "UPDATE";
-         table = ast.table[0].table;
+         try {
+            table = ast?.table[0]?.table ?? "Unknown";
+         } catch (error) {
+            console.error("Error while parsing UPDATE: ", error?.message);
+
+            table = "Unknown";
+         }
          break;
       case "delete":
          action = "DELETE";
-         table = ast.table[0].table;
+         try {
+            table = ast?.table[0]?.table ?? "Unknown";
+         } catch (error) {
+            console.error("Error while parsing DELETE: ", error?.message);
+
+            table = "Unknown";
+         }
          break;
       default:
          action = ast?.type ?? "-";
