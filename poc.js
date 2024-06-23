@@ -7,7 +7,7 @@ const parser = new Parser();
 let zongji;
 let mysqlConnection;
 
-function parseQuery(query) {
+const parseQuery = (query) => {
    // Convert SQL query to AST (Abstract Syntax Tree)
    const ast = parser.astify(query);
    let action = "";
@@ -33,9 +33,9 @@ function parseQuery(query) {
    }
 
    return { action, table };
-}
+};
 
-function startZongJi() {
+const startZongJi = () => {
    zongji = new ZongJi({
       host: "fleet-staging-load-tested.cqpvk3xrt3yu.us-west-1.rds.amazonaws.com",
       user: "admin",
@@ -91,9 +91,9 @@ function startZongJi() {
    });
 
    console.log("ZongJi started");
-}
+};
 
-function createConnection() {
+const createConnection = () => {
    mysqlConnection = mysql.createConnection({
       host: "192.168.0.8",
       user: "mysqlsauser",
@@ -121,7 +121,7 @@ function createConnection() {
          createConnection(); // Reattempt mysqlConnection
       }
    });
-}
+};
 
 // Start the process
 createConnection();
