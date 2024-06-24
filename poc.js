@@ -8,11 +8,22 @@ let zongji;
 let mysqlConnection;
 
 const parseQuery = (query) => {
-   // Convert SQL query to AST (Abstract Syntax Tree)
-   const ast = parser.astify(query);
-   const parsedData = nodeSqlParser.parse(query);
    let action = "";
    let table = "";
+
+   // Convert SQL query to AST (Abstract Syntax Tree)
+   let ast;
+
+   try {
+      ast = parser.astify(query);
+   } catch (error) {
+      action = "-";
+      table = "Unknown";
+
+      console.error("Parsing failed in parseQuery(): " + error?.message);
+
+      return { action, table };
+   }
 
    switch (ast.type) {
       case "insert":
@@ -25,7 +36,7 @@ const parseQuery = (query) => {
          try {
             table = ast?.table[0]?.table ?? "Unknown";
          } catch (error) {
-            console.error("Error while parsing INSERT: ", error?.message);
+            console.error("Error while parsing INSERT: " + error?.message);
 
             table = "Unknown";
          }
@@ -40,7 +51,7 @@ const parseQuery = (query) => {
          try {
             table = ast?.table[0]?.table ?? "Unknown";
          } catch (error) {
-            console.error("Error while parsing UPDATE: ", error?.message);
+            console.error("Error while parsing UPDATE: " + error?.message);
 
             table = "Unknown";
          }
@@ -55,7 +66,7 @@ const parseQuery = (query) => {
          try {
             table = ast?.table[0]?.table ?? "Unknown";
          } catch (error) {
-            console.error("Error while parsing DELETE: ", error?.message);
+            console.error("Error while parsing DELETE: " + error?.message);
 
             table = "Unknown";
          }
@@ -106,7 +117,7 @@ const startZongJi = () => {
 
    // Handle disconnections and errors
    zongji.on("error", function (error) {
-      console.error("ZongJi error:", error);
+      console.error("ZongJi error:" + error?.message);
 
       if (error.code === "PROTOCOL_CONNECTION_LOST" || error.fatal) {
          console.log("Reconnecting ZongJi...");
