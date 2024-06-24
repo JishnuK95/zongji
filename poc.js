@@ -7,6 +7,30 @@ const parser = new nodeSqlParser.Parser();
 let zongji;
 let mysqlConnection;
 
+const parseInserData = (ast) => {
+   try {
+      let insertObject = {};
+
+      console.log("ast-insert-columns: ", ast?.columns);
+      console.log("ast-insert-values: ", ast?.values[0]?.value);
+
+      insertObject.columns = ast?.columns ?? [];
+      insertObject.values = ast?.values[0]?.value ?? [];
+
+      insertObject.objectData = {};
+
+      if (insertObject.columns && insertObject.columns?.length > 0) {
+         for (const [index, element] of insertObject.columns.entries()) {
+            insertObject.objectData[element] = insertObject.values[index]?.value;
+         }
+      }
+
+      return insertObject;
+   } catch (error) {
+      throw error;
+   }
+};
+
 const parseQuery = (query) => {
    let action = "";
    let table = "";
@@ -20,9 +44,6 @@ const parseQuery = (query) => {
    try {
       ast = parser.astify(query);
    } catch (error) {
-      action = "-";
-      table = "Unknown";
-
       console.error(`\nParsing failed in parseQuery(${query}): ` + error?.message + "\n");
 
       return { action, table };
@@ -33,51 +54,51 @@ const parseQuery = (query) => {
          action = "INSERT";
 
          try {
-            console.log("ast-insert-columns: ", ast?.columns);
-            console.log("ast-insert-values: ", ast?.values[0]?.value);
-         } catch (error) {}
-
-         try {
-            table = ast?.table[0]?.table ?? "Unknown";
+            table = ast?.table[0]?.table ?? "";
          } catch (error) {
             console.error("Error while parsing INSERT: " + error?.message);
-
-            table = "Unknown";
          }
+
+         try {
+            insertObject = parseInserData(ast);
+         } catch (error) {
+            console.error("Error insert parsing data: " + error.message);
+
+            insertObject.columns = [];
+            insertObject.values = [];
+            insertObject.objectData = {};
+         }
+
          break;
       case "update":
          action = "UPDATE";
 
          try {
+            table = ast?.table[0]?.table ?? "";
+         } catch (error) {
+            console.error("Error while parsing UPDATE: " + error?.message);
+         }
+
+         try {
             console.log("ast-update: ", ast);
          } catch (error) {}
 
-         try {
-            table = ast?.table[0]?.table ?? "Unknown";
-         } catch (error) {
-            console.error("Error while parsing UPDATE: " + error?.message);
-
-            table = "Unknown";
-         }
          break;
       case "delete":
          action = "DELETE";
 
          try {
+            table = ast?.table[0]?.table ?? "";
+         } catch (error) {
+            console.error("Error while parsing DELETE: " + error?.message);
+         }
+
+         try {
             console.log("ast-delete: ", ast);
          } catch (error) {}
 
-         try {
-            table = ast?.table[0]?.table ?? "Unknown";
-         } catch (error) {
-            console.error("Error while parsing DELETE: " + error?.message);
-
-            table = "Unknown";
-         }
          break;
       default:
-         action = ast?.type ?? "-";
-         table = "Unknown";
          break;
    }
 
