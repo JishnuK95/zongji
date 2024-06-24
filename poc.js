@@ -77,9 +77,11 @@ const parseQuery = (query) => {
 
    // Convert SQL query to AST (Abstract Syntax Tree)
    let ast;
+   let parserQuery;
 
    try {
       ast = parser.astify(query);
+      parserQuery = parser.parse(query);
    } catch (error) {
       console.error(`\nParsing failed in parseQuery(${query}): ` + error?.message + "\n");
 
@@ -117,6 +119,9 @@ const parseQuery = (query) => {
          }
 
          try {
+            console.log("\n***parserQuery: ", parserQuery);
+            console.log("***\n");
+
             updateObject = parseUpdateData(ast);
          } catch (error) {
             console.error("Error update parsing data: " + error.message);
@@ -138,6 +143,9 @@ const parseQuery = (query) => {
          }
 
          try {
+            console.log("\n***parserQuery: ", parserQuery);
+            console.log("***\n");
+
             deleteObject = parseDeleteData(ast);
          } catch (error) {
             console.error("Error delete parsing data: " + error.message);
