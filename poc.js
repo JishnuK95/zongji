@@ -95,9 +95,9 @@ const startZongJi = () => {
    // Specify the events you want to listen to
    zongji.on("binlog", (evt) => {
       if (evt.getTypeName() === "Query") {
-         const evtQuery = evt.query.trim();
+         console.log("\nThe complete query: " + evt?.query, "\n");
 
-         console.log("\nThe complete query: " + evtQuery, "\n");
+         const evtQuery = evt.query.trim();
 
          if (evtQuery !== "BEGIN" && !evtQuery?.toLowerCase().includes("mysql.")) {
             let parsedQuery = parseQuery(evtQuery);
