@@ -10,6 +10,9 @@ let mysqlConnection;
 const parseQuery = (query) => {
    let action = "";
    let table = "";
+   let insertObject = {};
+   let updateObject = {};
+   let deleteObject = {};
 
    // Convert SQL query to AST (Abstract Syntax Tree)
    let ast;
@@ -20,7 +23,7 @@ const parseQuery = (query) => {
       action = "-";
       table = "Unknown";
 
-      console.error("Parsing failed in parseQuery(): " + error?.message);
+      console.error(`\nParsing failed in parseQuery(${query}): ` + error?.message + "\n");
 
       return { action, table };
    }
@@ -30,7 +33,8 @@ const parseQuery = (query) => {
          action = "INSERT";
 
          try {
-            console.log("parsedData-insert: ", parsedData);
+            console.log("ast-insert-columns: ", ast?.columns);
+            console.log("ast-insert-values: ", ast?.values[0]?.value);
          } catch (error) {}
 
          try {
@@ -45,7 +49,7 @@ const parseQuery = (query) => {
          action = "UPDATE";
 
          try {
-            console.log("parsedData-update: ", parsedData);
+            console.log("ast-update: ", ast);
          } catch (error) {}
 
          try {
@@ -60,7 +64,7 @@ const parseQuery = (query) => {
          action = "DELETE";
 
          try {
-            console.log("parsedData-delete: ", parsedData);
+            console.log("ast-delete: ", ast);
          } catch (error) {}
 
          try {
@@ -77,7 +81,7 @@ const parseQuery = (query) => {
          break;
    }
 
-   return { action, table };
+   return { action, table, insertObject, updateObject, deleteObject };
 };
 
 const startZongJi = () => {
@@ -89,9 +93,11 @@ const startZongJi = () => {
    });
 
    // Specify the events you want to listen to
-   zongji.on("binlog", function (evt) {
+   zongji.on("binlog", (evt) => {
       if (evt.getTypeName() === "Query") {
          const evtQuery = evt.query.trim();
+
+         console.log("\nThe complete query: " + evtQuery, "\n");
 
          if (evtQuery !== "BEGIN" && !evtQuery?.toLowerCase().includes("mysql.")) {
             let parsedQuery = parseQuery(evtQuery);
@@ -116,7 +122,7 @@ const startZongJi = () => {
    });
 
    // Handle disconnections and errors
-   zongji.on("error", function (error) {
+   zongji.on("error", (error) => {
       console.error("ZongJi error:" + error?.message);
 
       if (error.code === "PROTOCOL_CONNECTION_LOST" || error.fatal) {
