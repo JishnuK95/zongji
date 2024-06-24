@@ -1,8 +1,8 @@
 // Client code
 const ZongJi = require("./");
 const mysql = require("mysql");
-const { Parser } = require("node-sql-parser");
-const parser = new Parser();
+const nodeSqlParser = require("node-sql-parser");
+const parser = new nodeSqlParser.Parser();
 
 let zongji;
 let mysqlConnection;
@@ -10,12 +10,18 @@ let mysqlConnection;
 const parseQuery = (query) => {
    // Convert SQL query to AST (Abstract Syntax Tree)
    const ast = parser.astify(query);
+   const parsedData = nodeSqlParser.parse(query);
    let action = "";
    let table = "";
 
    switch (ast.type) {
       case "insert":
          action = "INSERT";
+
+         try {
+            console.log("parsedData-insert: ", parsedData);
+         } catch (error) {}
+
          try {
             table = ast?.table[0]?.table ?? "Unknown";
          } catch (error) {
@@ -26,6 +32,11 @@ const parseQuery = (query) => {
          break;
       case "update":
          action = "UPDATE";
+
+         try {
+            console.log("parsedData-update: ", parsedData);
+         } catch (error) {}
+
          try {
             table = ast?.table[0]?.table ?? "Unknown";
          } catch (error) {
@@ -36,6 +47,11 @@ const parseQuery = (query) => {
          break;
       case "delete":
          action = "DELETE";
+
+         try {
+            console.log("parsedData-delete: ", parsedData);
+         } catch (error) {}
+
          try {
             table = ast?.table[0]?.table ?? "Unknown";
          } catch (error) {
