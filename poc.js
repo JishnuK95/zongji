@@ -7,7 +7,7 @@ const parser = new nodeSqlParser.Parser();
 let zongji;
 let mysqlConnection;
 
-const parseInserData = (ast) => {
+const parseInsertData = (ast) => {
    try {
       let insertObject = {};
 
@@ -26,6 +26,43 @@ const parseInserData = (ast) => {
       }
 
       return insertObject;
+   } catch (error) {
+      throw error;
+   }
+};
+
+const parseUpdateData = (ast) => {
+   try {
+      let updateObject = {};
+
+      console.log("ast-update-set: ", ast?.set);
+      console.log("ast-update-where: ", ast?.where);
+
+      updateObject.set = ast?.set[0]?.value ?? [];
+      updateObject.where = ast?.where ?? {};
+      updateObject.objectData = {};
+      updateObject.whereClaue = {};
+
+      for (const { column, value } of updateObject.set) {
+         updateObject.objectData[column] = value;
+      }
+
+      return updateObject;
+   } catch (error) {
+      throw error;
+   }
+};
+
+const parseDeleteData = (ast) => {
+   try {
+      let deleteObject = {};
+
+      console.log("ast-delete-where: ", ast?.where);
+
+      deleteObject.where = ast?.where ?? {};
+      deleteObject.whereClaue = {};
+
+      return deleteObject;
    } catch (error) {
       throw error;
    }
@@ -60,7 +97,7 @@ const parseQuery = (query) => {
          }
 
          try {
-            insertObject = parseInserData(ast);
+            insertObject = parseInsertData(ast);
          } catch (error) {
             console.error("Error insert parsing data: " + error.message);
 
@@ -80,8 +117,15 @@ const parseQuery = (query) => {
          }
 
          try {
-            console.log("ast-update: ", ast);
-         } catch (error) {}
+            updateObject = parseUpdateData(ast);
+         } catch (error) {
+            console.error("Error update parsing data: " + error.message);
+
+            updateObject.where = {};
+            updateObject.whereClaue = {};
+            updateObject.objectData = {};
+            updateObject.whereClaue = {};
+         }
 
          break;
       case "delete":
@@ -94,8 +138,13 @@ const parseQuery = (query) => {
          }
 
          try {
-            console.log("ast-delete: ", ast);
-         } catch (error) {}
+            deleteObject = parseDeleteData(ast);
+         } catch (error) {
+            console.error("Error delete parsing data: " + error.message);
+
+            deleteObject.where = {};
+            deleteObject.whereClaue = {};
+         }
 
          break;
       default:
